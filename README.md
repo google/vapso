@@ -20,5 +20,5 @@ index.html to the correct place to find it.
 
 Contact the authors:
 - Denny Vrandecic vrandecic@google.com
-- Ben Sisson
+- Laura Sisson laurasisson@google.com
 
