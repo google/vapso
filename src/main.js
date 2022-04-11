@@ -144,10 +144,11 @@ $(function() {
       $('.typename').addClass('inactive');
       $('#type' + s).removeClass('inactive');
     });
-    $('#diagram').css('width', width);
-    $('#diagram').css('height`', height)
-    $('#diagram').width(width);
-    $('#diagram').height(height);
+
+    var canvas = document.getElementById('diagram');
+    canvas.width = width;
+    canvas.height = height;
+
     ctx = document.getElementById('diagram').getContext('2d');
     return ctx;
   }
