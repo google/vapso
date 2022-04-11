@@ -15,13 +15,20 @@ limitations under the License.
 /**
  * @fileoverview Simulated annealing for placement of dots on Venn diagrams.
  */
+
 class swapper {
-  constructor(scoreToTemperature, field, width, height, sets) {
+  constructor(
+      scoreToTemperature, field, width, height, sets, numRuns, stepsPerRun) {
     this.sim = new scorer(field, width, height, sets);
+    this.stepsPerRun = stepsPerRun;
+    this.totalSteps = numRuns * stepsPerRun;
+    this.currentRun = 0;
     this.maxTemperature = this.sim.getTotalScore() / scoreToTemperature;
   }
+
   getTemperature(fractionLeft) {
-    return Math.round(this.maxTemperature * fractionLeft * fractionLeft) + 1;
+    // Using fractionLeft^2 so that the curse of temperature is non-linear.
+    return Math.round(this.maxTemperature * fractionLeft) + 1;
   }
 
   probabilityOfSwap(fractionLeft, scoreBefore, scoreAfter) {
@@ -39,67 +46,64 @@ class swapper {
     return Math.max(0, 2 - exp_fraction);
   }
 
-  scoreAfterSwap(p1Delta, p2Delta) {
-    const scoreBeforeSwap = this.sim.totalScore;
-    const scoreDeltaP1 = p1Delta.after - p1Delta.before;
-    const scoreDeltaP2 = p2Delta.after - p2Delta.before;
-
-    return scoreBeforeSwap + scoreDeltaP1 + scoreDeltaP2;
-  }
-
   swapPoints(p1, p2, p1Delta, p2Delta) {
     this.sim.swapPoints(p1, p2, p1Delta, p2Delta);
   }
 
-  runSimulatedAnnealing(totalSteps) {
-    console.log('Starting score: ' + this.sim.totalScore);
-    const start = new Date().getTime();
-
-    const progressStep = 100;
-    let currentStep = totalSteps;
-    let percentDone = 0;
-    for (; currentStep >= 0; currentStep--) {
-      const currentPercent = (totalSteps - currentStep) / totalSteps * 100;
-      if (currentPercent > percentDone + 1) {
-        percentDone++;
-        console.log(percentDone / progressStep);
-      }
-
-      const fractionLeft = currentStep / totalSteps;
-      const pointPair = this.sim.getPointPair();
-      const p1 = pointPair[0];
-      const p2 = pointPair[1];
-      if (p1.value == p2.value) {
-        continue;
-      }
-      const p1Delta = this.sim.scoreDeltaForPoint(p1, p2);
-      const p2Delta = this.sim.scoreDeltaForPoint(p2, p1);
-
-      const scoreBefore = this.sim.totalScore;
-      const scoreAfter = this.scoreAfterSwap(p1Delta, p2Delta);
-
-      const probSwap =
-          this.probabilityOfSwap(fractionLeft, scoreBefore, scoreAfter);
-      if (Math.random() > probSwap) {
-        // Swap was too bad to do, so continue.
-        continue;
-      }
-
-      this.swapPoints(p1, p2, p1Delta, p2Delta);
-    }
-
-    const end = new Date().getTime();
-    const time = end - start;
-    console.log('Execution time: ' + (time / 1000) + ' seconds.');
-    console.log('Final score: ' + this.sim.getTotalScore());
+  getFractionLeft(currentStep) {
+    const totalCurrentStep = currentStep + (this.currentRun * this.stepsPerRun);
+    const percentDone = totalCurrentStep / this.totalSteps;
+    return 1 - percentDone;
   }
 
-  timeFun(f) {
+  scoreAfterSwap(p1Delta, p2Delta) {
+    const scoreBeforeSwap = this.sim.totalScore;
+    const scoreDeltaP1 = p1Delta.after - p1Delta.before;
+    const scoreDeltaP2 = p2Delta.after - p2Delta.before;
+    return scoreBeforeSwap + scoreDeltaP1 + scoreDeltaP2;
+  }
+
+
+  runStep(currentStep) {
+    const pointPair = this.sim.getPointPair();
+
+    const p1 = pointPair[0];
+    const p2 = pointPair[1];
+
+    if (p1.value == p2.value) {
+      return;
+    }
+
+    const p1Delta = this.sim.scoreDeltaForPoint(p1, p2);
+    const p2Delta = this.sim.scoreDeltaForPoint(p2, p1);
+
+    // TODO: sim.totalScore should not be accessed raw! This would be better with a wrapper.
+    const scoreBefore = this.sim.totalScore;
+    const scoreAfter = this.scoreAfterSwap(p1Delta, p2Delta);
+
+    const probSwap = this.probabilityOfSwap(
+        this.getFractionLeft(currentStep), scoreBefore, scoreAfter);
+
+    if (Math.random() > probSwap) {
+      // Swap was too bad to do, so return.
+      return;
+    }
+
+    this.hits++;
+
+    // swapPoints is currently the bottleneck of this entire process.
+    this.swapPoints(p1, p2, p1Delta, p2Delta);
+  }
+
+  runSimulatedAnnealing() {
     const start = new Date().getTime();
-    f();
-    const end = new Date().getTime();
-    const time = end - start;
-    console.log('Execution time: ' + (time / 1000) + ' seconds.');
+
+    let currentStep = 0;
+    this.hits = 0;
+    for (; currentStep < this.stepsPerRun; currentStep++) {
+      this.runStep(currentStep);
+    }
+    this.currentRun++;
   }
 }
 

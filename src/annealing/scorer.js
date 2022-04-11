@@ -23,6 +23,7 @@ class scorer {
     this.width = width;
     this.height = height;
     this.sets = sets;
+    this.nullCenter = {x: 0, y: 0, count: 0, value: -1};
 
     this.similarityIndex = this.buildSimilarityIndex();
 
@@ -34,8 +35,6 @@ class scorer {
     this.totalScore = this.getTotalScore();
   }
 
-  // TODO: Many of the following functions should be refactored into
-  // a scorer superclass.
   getLocation(x, y) {
     return {x: x, y: y, value: this.field[x + y * this.width]};
   }
@@ -126,8 +125,7 @@ class scorer {
     // manner, because the central piece of information is actually the
     // center of mass for scoring.
     let allPointsList = [];
-    let xyToIndexInAllPoints = {};
-
+    let xyToIndexInAllPoints = new Map();
     // The center of mass for a color is the sum of all positions for that color
     // divided by the total number of points for that color.
     for (let x = 0; x < this.width; x++) {
@@ -141,7 +139,7 @@ class scorer {
         // Just append this point to allPointsList and update
         // xyToIndexInAllPoints.
         const newLen = allPointsList.push(point);
-        xyToIndexInAllPoints[this.pointToStr(point)] = newLen - 1;
+        xyToIndexInAllPoints.set(this.pointToStr(point), newLen - 1);
 
         if (!(color in colorToCount)) {
           colorToCount[color] = 0;
@@ -206,7 +204,7 @@ class scorer {
       } else {
         centerOfMass = this.colorToCenterOfMass[otherColor];
       }
-      score += similarity *  this.distanceSqr(point, centerOfMass) *
+      score += similarity * this.distanceSqr(point, centerOfMass) *
           centerOfMass.count;
     }
     return score;
@@ -216,12 +214,11 @@ class scorer {
     let score = 0;
     // We want to use the color's current center, so just create one that will
     // always be ignored.
-    const ignoredCenter = {x: 0, y: 0, count: 0, value: -1};
     for (let i = 0; i < this.allPointsList.length; i++) {
       const point = this.allPointsList[i];
       const color = point.value;
       score +=
-          this.scoreSinglePoint(point, color, ignoredCenter, ignoredCenter);
+          this.scoreSinglePoint(point, color, this.nullCenter, this.nullCenter);
     }
     return score;
   }
@@ -238,7 +235,7 @@ class scorer {
 
     // If the other point is not white, use the actual center for its color.
     // Otherwise, just use the ignored center.
-    let newCenterOther = {x: 0, y: 0, count: 0, value: -1};
+    let newCenterOther = this.nullCenter;
     if (otherPoint.value != 0) {
       newCenterOther = this.centerAfterSwap(
           this.colorToCenterOfMass[otherPoint.value], otherPoint, point);
@@ -259,7 +256,7 @@ class scorer {
       // Point will not be in the index
       return;
     }
-    delete this.xyToIndexInAllPoints[this.pointToStr(p)];
+    this.xyToIndexInAllPoints.delete(this.pointToStr(p));
     this.setLocation(p.x, p.y, 0);
   }
 
@@ -282,7 +279,7 @@ class scorer {
     };
 
     this.allPointsList[indexOfPoint] = newPoint;
-    this.xyToIndexInAllPoints[this.pointToStr(updatePoint)] = indexOfPoint;
+    this.xyToIndexInAllPoints.set(this.pointToStr(updatePoint), indexOfPoint);
 
     const newCenter = this.centerAfterSwap(
         this.colorToCenterOfMass[oldPoint.value], oldPoint, updatePoint);
@@ -297,8 +294,8 @@ class scorer {
   }
 
   swapPoints(p1, p2, p1Delta, p2Delta) {
-    const indexOfP1 = this.xyToIndexInAllPoints[this.pointToStr(p1)];
-    const indexOfP2 = this.xyToIndexInAllPoints[this.pointToStr(p2)];
+    const indexOfP1 = this.xyToIndexInAllPoints.get(this.pointToStr(p1));
+    const indexOfP2 = this.xyToIndexInAllPoints.get(this.pointToStr(p2));
 
     this.deletePoint(p1);
     this.deletePoint(p2);
