@@ -3726,7 +3726,6 @@ $(function() {
 
     fr.readAsText(files.item(0));
   }
-  console.log("Probably should have some way to manual input. Please our thing doesn't work if width and height aren't 250")
   $('#clickLoadData').click(loadCSV);
   $('#clickVisualize').click(startVisualize);
   $('#clickDemo1').click(startDemo1);

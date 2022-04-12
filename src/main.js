@@ -45,15 +45,19 @@ $(function() {
   }
 
   var isLoad = JSON.parse(sessionStorage.getItem('isLoad'));
-
+ 
   if (!isLoad) {
     var fillPercent = JSON.parse(sessionStorage.getItem('fillPercent'));
     field = initField(sets, fillPercent / 100);
+    $("#loading-display").addClass("d-none");
+    $("#main-display").removeClass("d-none");
     ctx = initCanvas();
     paint(ctx, field, typeColors);
     generateDiagram();
   } else {
     field = JSON.parse(sessionStorage.getItem('field'));
+    $("#loading-display").addClass("d-none");
+    $("#main-display").removeClass("d-none");
     ctx = initCanvas();
     paint(ctx, field, typeColors);
     $('#progress').hide();
@@ -148,8 +152,8 @@ $(function() {
     var canvas = document.getElementById('diagram');
     canvas.width = width;
     canvas.height = height;
-
     ctx = document.getElementById('diagram').getContext('2d');
+
     return ctx;
   }
   function calculateCenters() {
@@ -357,7 +361,9 @@ $(function() {
         width * height);
   }
   async function generateDiagram() {
-    $('#bar').show();
+    $('#save').addClass("d-none");
+    $('#options').addClass("d-none");
+    $('#info').addClass("d-none");
     const annealSteps = 150;
     const closeSteps = 50;
     // How many iterateClose in a closeStep
@@ -378,8 +384,10 @@ $(function() {
       }
       await updateBarAndScreen(i / totalSteps, startTime);
     }
-    $('#progress').hide();
-    $('#right').show();
+    $('#progress').addClass("d-none");
+    $('#save').removeClass("d-none");
+    $('#options').removeClass("d-none");
+    $('#info').removeClass("d-none");
   }
   function outline() {
     ctx.fillStyle = backgroundColor;

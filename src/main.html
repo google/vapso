@@ -8,40 +8,52 @@
   <link rel="stylesheet" href="main.css">
 </head>
 <body class="bg-light">
-  <div class="d-flex flex-row">
-    <div class="mr-1 border rounded border-primary bg-white">
-      <canvas id="diagram" width="100" height="100"></canvas>
-    </div>
-    <div>
-      <div id="options" style="display: inline-block;" class=
-      "mx-1 p-2 border rounded border-primary bg-white">
-        Outline Options<br>
-        <button type="button" id="clickOutline">Outline</button>
-        <button type="button" id="clickSimpleOutline">Simple
-        outline</button>
+  <h1 id="loading-display" class="">Loading Diagram</h1>
+  <div id="main-display" class="d-none">
+    <div class="d-flex flex-row">
+      <div class="mr-1">
+        <canvas id="diagram" class=
+        "d-flex justify-content-center border rounded border-primary bg-white"
+        width="100" height="100"></canvas>
+        <div id="progress">
+          <div class="d-flex justify-content-center mt-2">
+            <div id="outline">
+              <div id="bar"></div>
+            </div>
+          </div><b id="duration" class=
+          "d-flex justify-content-center"></b> <small class=
+          "d-flex justify-content-center"><i>Progress will not
+          occur in the background.</i></small>
+        </div>
+      </div>
+      <div>
+        <div id="options" style="display: inline-block;" class=
+        "mx-1 p-2 border rounded border-primary bg-white">
+          Outline Options<br>
+          <button type="button" id="clickOutline">Outline</button>
+          <button type="button" id="clickSimpleOutline">Simple
+          outline</button>
+        </div>
+      </div>
+      <div>
+        <div id="save" style="display: inline-block;" class=
+        "mx-1 p-2 border rounded border-primary bg-white">
+          Save visualization to JSON data file<br>
+          <button type="button" id="clickSaveData">Save</button>
+        </div>
       </div>
     </div>
-    <div>
-      <div id="save" style="display: inline-block;" class=
-      "mx-1 p-2 border rounded border-primary bg-white">
-        Save visualization to JSON data file<br>
-        <button type="button" id="clickSaveData">Save</button>
+    <div id="info" class=
+    "mt-2 border rounded border-primary bg-white" style=
+    "display: inline-block;">
+      Press button next to set label to select and highlight that
+      region,<br>
+      as well as supersets of that region<br>
+      <div id="set-labels"></div><button type="button" id=
+      "clickResetSets">Reset Selected</button>
+      <div id="count">
+        X elements
       </div>
-    </div>
-  </div>
-  <div id="info" class="mt-2 border rounded border-primary bg-white" style=
-  "display: inline-block;">
-    <div id="progress">
-      <div id="outline">
-        <div id="bar"></div>
-      </div><b id="duration"></b>
-    </div>Hover over set labels to select and higlight that
-    region,<br>
-    as well as supersets of that region<br>
-    <div id="set-labels"></div><button type="button" id=
-    "clickResetSets">Reset Selected</button>
-    <div id="count">
-      X elements
     </div>
   </div>
   <link href=
