@@ -10,41 +10,60 @@
 <body class="bg-light">
   <div>
     <div class="m-2 p-2 border rounded border-primary bg-white">
-      <p>How many sets are you visualizing?<br>
-      <input type="number" id="setCount" min="2" max="8"></p>
-      <p>Input your .csv directly, below:<br>
-      <button type="button" id="clickLoadData">Load data</button>
-      <input type="text" id="csvData"></p>
-      <p><button type="button" class="btn btn-info" data-toggle=
-      "collapse" data-target="#options" id="clickCollapse">Set
-      Options</button></p>
-      <div id="options" class="collapse">
-        <div id="colors">
-          <div>
-            Two
+        <p>How many sets are you visualizing?</p><input type=
+        "number" id="setCount" min="2" max="8" value="3">
+        <button type="button" id="clickPrepareSets">Prepare
+        sets</button>
+        <div id="data-input" class="d-none">
+          <p>Input your .csv directly, below:</p><button type=
+          "button" id="clickLoadData">Load data</button>
+          <input type="text" id="csvData"><br/>
+          CSV Order: <i id="csv-label"></i>
+          <div class="mt-4"></div>
+          <p>Or input your data manually:</p>
+          <div id="options" class="d-none">
+            <div>
+            <div class=
+            "border rounded border-black border-3 p-2 my-1" style=
+            "display: inline-block;">
+              <p><b>Set names?</b></p>
+              <div id="colors">
+                <div>
+                  Two
+                </div>
+                <div>
+                  Three
+                </div>
+              </div>
+            </div>
           </div>
           <div>
-            Three
+            <div class=
+            "border rounded border-black border-3 p-2 my-1" style=
+            "display: inline-block;">
+              <p><b>Set sizes?</b></p>
+              <div id="sizes">
+                <div>
+                  One
+                </div>
+                <div>
+                  Two
+                </div>
+                <div>
+                  Three
+                </div>
+                <div>
+                  Four
+                </div>
+                <div>
+                  Five
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div id="sizes">
-          <div>
-            One
-          </div>
-          <div>
-            Two
-          </div>
-          <div>
-            Three
-          </div>
-          <div>
-            Four
-          </div>
-          <div>
-            Five
-          </div>
         </div>
-      </div>
+        <div class="my-3">
       <p>Image Size: <input type="number" id="imgWidth" value="250"
       placeholder="250" min="1"> X <input type="number" id=
       "imgHeight" value="250" placeholder="250" min="1">
@@ -54,6 +73,7 @@
       placeholder="65" min="0" max="100"><br>
       <small>(Denotes how many pixels of the image should be filled
       with color, as opposed to white)</small></p>
+    </div>
       <p><button type="button" id=
       "clickVisualize">Visualize</button></p>
     </div>

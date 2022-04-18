@@ -41,10 +41,34 @@ $(function() {
       ],
     };
     for (var i = 0; i < setCount; i++) {
-      state.names.push(`SET_${'ABCDEFG'[i]}`);
+      state.names.push(`${'ABCDEFGH'[i]}`);
     }
   }
+
+  function getExpectedLength(setCount) {
+    return Math.pow(2, setCount) - 1;
+  }
+  
+  function prepareSets() {
+    $("#data-input").removeClass("d-none");
+    var setCount = $('#setCount').val();
+    var data = [];
+    for (var i = 0; i < getExpectedLength(setCount); i++) {
+      data.push(0);
+    }
+    buildSetDisplay(data);
+  }
+
+  function populateCsvLabel() {
+    var setLabels = []
+    for (var i =0; i<state.data.length; i++){
+      setLabels.push(binaryToIncludedSets(state, i + 1));
+    }
+    $("#csv-label").text(setLabels.join("\t,\t"));
+  }
+
   function populateColors() {
+    $("#options").removeClass("d-none");
     $(`#colors`).empty();
     for (var i = 0; i < state.names.length; i++) {
       $(`#colors`).append(`
@@ -114,11 +138,9 @@ $(function() {
     }
   }
   function loadCSV() {
-    $('#clickCollapse').show();
     $('#clickVisualize').show();
     var setCount = $('#setCount').val();
     var rawData = $('#csvData').val().split(',');
-    var expectedLen = Math.pow(2, setCount) - 1;
     var data = [];
     for (var i = 0; i < rawData.length; i++) {
       data.push(parseInt(rawData[i]));
@@ -126,10 +148,16 @@ $(function() {
         console.error(`Data at position ${i} is NaN.`);
       }
     }
-    if (data.length !== expectedLen) {
-      console.error(`Expected ${expectedLen} values, but instead got ${
+    if (data.length !== getExpectedLength(setCount)) {
+      console.error(`Expected ${getExpectedLength(setCount)} values, but instead got ${
           data.length} values.`);
     }
+    buildSetDisplay(data);
+  }
+
+  function buildSetDisplay(data) {
+    var setCount = $('#setCount').val();
+
     if ($('#imgWidth').val() <=0){
       console.error("Width should be greater than 0.")
     }
@@ -141,6 +169,7 @@ $(function() {
         $('#imgFill').val());
     populateColors();
     populateSizes();
+    populateCsvLabel();
   }
   function loadMainPage(state) {
     for (k in state) {
@@ -3726,13 +3755,13 @@ $(function() {
 
     fr.readAsText(files.item(0));
   }
+  $('#clickPrepareSets').click(prepareSets);
   $('#clickLoadData').click(loadCSV);
   $('#clickVisualize').click(startVisualize);
   $('#clickDemo1').click(startDemo1);
   $('#clickDemo2').click(startDemo2);
   $('#clickGallery1').click(startGallery1);
   $('#clickUploadFile').click(uploadFile);
-  $('#clickCollapse').hide();
   $('#clickVisualize').hide();
 });
 }(jQuery));
